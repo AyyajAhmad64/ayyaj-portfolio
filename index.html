@@ -54,6 +54,11 @@
             transparent 1px
           ),
           radial-gradient(
+            700px circle at var(--mouse-x, 80%) var(--mouse-y, 20%),
+            rgba(79, 209, 197, 0.06),
+            transparent 70%
+          ),
+          radial-gradient(
             circle at top right,
             rgba(79, 209, 197, 0.08),
             transparent 28rem
@@ -63,12 +68,34 @@
           34px 34px,
           34px 34px,
           auto,
+          auto,
           auto;
         color: var(--paper);
         font-family: var(--mono);
         font-weight: 400;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
+        animation: subtleBgPulse 22s ease-in-out infinite alternate;
+      }
+      @keyframes subtleBgPulse {
+        0% {
+          background-position: 0 0, 0 0, 0 0, 0 0;
+        }
+        100% {
+          background-position: 17px 17px, 17px 17px, 0 0, 0 0;
+        }
+      }
+      .scroll-progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2.5px;
+        width: 0%;
+        background: linear-gradient(90deg, var(--teal), var(--amber));
+        z-index: 9999;
+        pointer-events: none;
+        transition: width 0.08s ease-out;
+        box-shadow: 0 0 10px var(--teal);
       }
       a {
         color: inherit;
@@ -119,7 +146,7 @@
         font-size: 12.5px;
         overflow-y: auto;
         z-index: 20;
-        background: rgba(17, 21, 27, 0.72);
+        background: transparent;
       }
       @media (max-width: 900px) {
         .rail {
@@ -130,10 +157,10 @@
           overflow-x: auto;
           padding: 12px 16px;
           gap: 8px;
-          background: rgba(17, 21, 27, 0.94);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          border-bottom: 1px solid var(--line);
+          background: rgba(17, 21, 27, 0.55);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(44, 52, 68, 0.5);
           z-index: 30;
           scrollbar-width: none;
           max-width: 100vw;
@@ -182,7 +209,7 @@
       .rail a.active {
         color: var(--teal);
         border-left-color: var(--teal);
-        background: linear-gradient(90deg, var(--teal-soft), transparent);
+        background: linear-gradient(90deg, rgba(79, 209, 197, 0.16), rgba(79, 209, 197, 0.03) 85%, transparent);
       }
       .rail a.active::before {
         content: "[x]  ";
@@ -190,7 +217,7 @@
       }
       .rail a:hover {
         color: var(--paper-soft);
-        background: rgba(79, 209, 197, 0.07);
+        background: rgba(79, 209, 197, 0.08);
         transform: translateX(3px);
       }
       @media (max-width: 900px) {
@@ -199,15 +226,16 @@
           padding: 8px 12px;
           border-bottom: 2px solid transparent;
           border-radius: 6px;
-          background: rgba(255, 255, 255, 0.03);
+          background: rgba(255, 255, 255, 0.04);
           font-size: 12px;
         }
         .rail a.active {
           border-bottom-color: var(--teal);
-          background: var(--teal-soft);
+          background: rgba(79, 209, 197, 0.18);
           transform: none;
         }
         .rail a:hover {
+          background: rgba(79, 209, 197, 0.12);
           transform: none;
         }
       }
@@ -244,10 +272,32 @@
         height: 1px;
         background: var(--line);
         min-width: 16px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
+      }
+      .reveal-section.in-view .eyebrow::after {
+        transform: scaleX(1);
+      }
+      body.no-js .eyebrow::after {
+        transform: scaleX(1);
       }
       .eyebrow .cmd {
         color: var(--teal);
         white-space: nowrap;
+        opacity: 0;
+        transform: translateX(-8px);
+        transition:
+          opacity 0.4s ease 0.08s,
+          transform 0.4s ease 0.08s;
+      }
+      .reveal-section.in-view .eyebrow .cmd {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      body.no-js .eyebrow .cmd {
+        opacity: 1;
+        transform: none;
       }
       .eyebrow .title {
         color: var(--paper);
@@ -255,6 +305,19 @@
         font-size: 13px;
         font-weight: 700;
         white-space: nowrap;
+        opacity: 0;
+        transform: translateY(4px);
+        transition:
+          opacity 0.4s ease 0.14s,
+          transform 0.4s ease 0.14s;
+      }
+      .reveal-section.in-view .eyebrow .title {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      body.no-js .eyebrow .title {
+        opacity: 1;
+        transform: none;
       }
 
       /* ---------- Hero / terminal card ---------- */
@@ -269,6 +332,15 @@
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+        transition:
+          border-color 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+      .term:hover {
+        border-color: var(--line-strong);
+        box-shadow:
+          0 32px 64px -28px rgba(0, 0, 0, 0.7),
+          0 0 24px rgba(79, 209, 197, 0.06);
       }
       .term-bar {
         display: flex;
@@ -290,10 +362,25 @@
         height: 9px;
         border-radius: 50%;
         background: var(--line);
+        transition: background 0.2s ease, transform 0.2s ease;
       }
+      .term:hover .term-dots span:nth-child(1) { background: #ff5f56; }
+      .term:hover .term-dots span:nth-child(2) { background: #ffbd2e; }
+      .term:hover .term-dots span:nth-child(3) { background: #27c93f; }
       .status-ok {
         color: var(--teal);
         font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .status-ok::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 6px var(--teal);
       }
       .term-body {
         padding: 34px 34px 28px;
@@ -318,6 +405,15 @@
           0 20px 48px -24px var(--teal);
         display: block;
         cursor: default;
+        transition:
+          transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.3s ease;
+      }
+      .avatar:hover {
+        transform: scale(1.03);
+        box-shadow:
+          0 0 0 10px rgba(79, 209, 197, 0.24),
+          0 26px 56px -20px var(--teal);
       }
       .avatar-wrap {
         position: relative;
@@ -325,6 +421,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        animation: subtleAvatarFloat 5.5s ease-in-out infinite alternate;
+      }
+      @keyframes subtleAvatarFloat {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(-4px);
+        }
       }
       .avatar-wrap::after {
         content: "available";
@@ -340,6 +445,11 @@
         font-size: 10.5px;
         font-weight: 600;
         pointer-events: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .avatar-wrap:hover::after {
+        transform: translateY(-2px);
+        box-shadow: 0 0 10px rgba(79, 209, 197, 0.4);
       }
       @media (max-width: 680px) {
         .term-body {
@@ -470,10 +580,11 @@
         white-space: nowrap;
         cursor: pointer;
         transition:
-          border-color 0.15s ease,
-          background 0.15s ease,
-          transform 0.15s ease,
-          box-shadow 0.15s ease;
+          border-color 0.18s ease,
+          background 0.18s ease,
+          transform 0.18s ease,
+          box-shadow 0.18s ease,
+          color 0.18s ease;
       }
       @media (max-width: 620px) {
         .cta-row {
@@ -493,8 +604,11 @@
       .btn:hover {
         border-color: var(--teal);
         background: var(--panel-3);
-        box-shadow: 0 20px 45px -35px var(--teal);
+        box-shadow: 0 20px 45px -32px var(--teal);
         transform: translateY(-2px);
+      }
+      .btn:active {
+        transform: translateY(1px) scale(0.98);
       }
       .btn.primary {
         background: var(--teal);
@@ -506,6 +620,8 @@
       .btn.primary:hover {
         border-color: var(--teal);
         background: #5eead4;
+        box-shadow: 0 16px 32px -16px var(--teal);
+        transform: translateY(-2px);
       }
 
       /* ---------- About ---------- */
@@ -528,10 +644,10 @@
         border-radius: 8px;
         padding: 24px;
         transition:
-          border-color 0.15s ease,
-          background 0.15s ease,
-          box-shadow 0.15s ease,
-          transform 0.15s ease;
+          border-color 0.2s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
       }
       .about-box:hover,
       .focus-box:hover {
@@ -564,6 +680,20 @@
         font-size: 12px;
         padding: 6px 12px;
         font-weight: 500;
+        transition:
+          border-color 0.18s ease,
+          background 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
+        cursor: default;
+      }
+      .focus-list li:hover {
+        border-color: var(--teal);
+        background: rgba(79, 209, 197, 0.18);
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 209, 197, 0.2);
       }
       @media (max-width: 760px) {
         .about-panel {
@@ -585,7 +715,7 @@
         --timeline-line-width: 2px;
       }
 
-      /* Single Continuous Vertical Timeline Line (Single Source of Truth) */
+      /* Single Continuous Vertical Timeline Line (Animated Draw) */
       .timeline::before {
         content: "";
         position: absolute;
@@ -593,18 +723,51 @@
         bottom: 8px;
         left: var(--timeline-axis);
         width: var(--timeline-line-width);
-        transform: translateX(-50%);
-        background: var(--line);
+        transform: translateX(-50%) scaleY(0);
+        transform-origin: top;
+        background: linear-gradient(180deg, var(--teal), var(--line) 30%, var(--line));
         pointer-events: none;
         z-index: 1;
+        transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .reveal-section.in-view .timeline::before {
+        transform: translateX(-50%) scaleY(1);
+      }
+      body.no-js .timeline::before {
+        transform: translateX(-50%) scaleY(1);
       }
 
       .timeline-item {
         position: relative;
-        padding-left: 26px;
+        padding-left: 28px;
         padding-bottom: 28px;
         min-width: 0;
         box-sizing: border-box;
+        opacity: 0;
+        transform: translateX(-12px);
+        border-radius: 6px;
+        transition:
+          opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+          background 0.2s ease;
+      }
+      .reveal-section.in-view .timeline-item {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .reveal-section.in-view .timeline-item:nth-child(1) { transition-delay: 0.14s; }
+      .reveal-section.in-view .timeline-item:nth-child(2) { transition-delay: 0.26s; }
+      .reveal-section.in-view .timeline-item:nth-child(3) { transition-delay: 0.38s; }
+      .reveal-section.in-view .timeline-item:nth-child(4) { transition-delay: 0.50s; }
+
+      body.no-js .timeline-item {
+        opacity: 1;
+        transform: none;
+      }
+
+      .timeline-item:hover {
+        background: rgba(255, 255, 255, 0.025);
+        transform: translateX(4px);
       }
 
       .timeline-item:last-child {
@@ -623,23 +786,50 @@
       .timeline-marker {
         position: absolute;
         left: var(--timeline-axis);
-        top: 5px;
+        top: 6px;
         width: var(--timeline-marker-size);
         height: var(--timeline-marker-size);
-        transform: translateX(-50%);
+        transform: translateX(-50%) scale(0);
         border-radius: 50%;
         background: var(--ink);
         border: 2px solid var(--amber);
         box-shadow: 0 0 0 5px var(--amber-soft);
         box-sizing: border-box;
         z-index: 2;
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        transition:
+          transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .reveal-section.in-view .timeline-marker {
+        transform: translateX(-50%) scale(1);
+      }
+      .reveal-section.in-view .timeline-item:nth-child(1) .timeline-marker { transition-delay: 0.12s; }
+      .reveal-section.in-view .timeline-item:nth-child(2) .timeline-marker { transition-delay: 0.24s; }
+      .reveal-section.in-view .timeline-item:nth-child(3) .timeline-marker { transition-delay: 0.36s; }
+      .reveal-section.in-view .timeline-item:nth-child(4) .timeline-marker { transition-delay: 0.48s; }
+
+      body.no-js .timeline-marker {
+        transform: translateX(-50%) scale(1);
       }
 
-      /* Current / Active Marker State */
+      /* Current / Active Marker State with Subtle Pulse */
       .timeline-item.is-current .timeline-marker {
         border-color: var(--teal);
-        box-shadow: 0 0 0 5px var(--teal-soft), 0 0 14px var(--teal);
+        box-shadow: 0 0 0 5px var(--teal-soft), 0 0 16px var(--teal);
+        animation: currentMarkerPulse 2.8s ease-in-out infinite;
+      }
+      @keyframes currentMarkerPulse {
+        0%, 100% {
+          box-shadow: 0 0 0 5px var(--teal-soft), 0 0 12px var(--teal);
+        }
+        50% {
+          box-shadow: 0 0 0 8px rgba(79, 209, 197, 0.25), 0 0 22px var(--teal);
+        }
+      }
+      .timeline-item:hover .timeline-marker {
+        transform: translateX(-50%) scale(1.18);
+        border-color: var(--teal);
       }
 
       /* Timeline Content Container (Completely decoupled from Marker) */
@@ -776,16 +966,19 @@
         overflow: hidden;
         width: 100%;
         border-radius: 8px;
-        padding: 16px 4px;
-        margin: -16px -4px;
+        padding: 20px 6px;
+        margin: -20px -6px;
+        padding: 24px 14px 56px;
+        margin: -24px -14px -56px;
         touch-action: pan-y pinch-zoom;
       }
       .proj-track {
         display: flex;
         gap: 20px;
         width: 100%;
-        padding: 6px 2px;
-        transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+        padding: 8px 4px;
+        padding: 12px 6px 24px;
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
         will-change: transform;
         align-items: stretch;
       }
@@ -835,13 +1028,14 @@
         transition:
           background 0.2s ease,
           border-color 0.2s ease,
-          transform 0.2s ease;
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
       .proj-dot.active {
         background: var(--teal);
         border-color: var(--teal);
-        transform: scale(1.25);
-        box-shadow: 0 0 8px var(--teal-soft);
+        transform: scale(1.3);
+        box-shadow: 0 0 10px var(--teal-soft);
       }
 
       .card {
@@ -857,15 +1051,42 @@
         gap: 16px;
         min-height: 100%;
         box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
         transition:
-          border-color 0.15s ease,
-          box-shadow 0.15s ease,
-          transform 0.15s ease;
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -120%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(79, 209, 197, 0.08),
+          transparent
+        );
+        transform: skewX(-20deg);
+        pointer-events: none;
+        transition: left 0.65s ease;
+      }
+      .card:hover::before {
+        left: 140%;
       }
       .card:hover {
         border-color: var(--teal);
-        box-shadow: 0 20px 45px -35px var(--teal);
-        transform: translateY(-3px);
+        box-shadow:
+          0 24px 50px -26px var(--teal),
+          0 0 0 1px rgba(79, 209, 197, 0.18);
+          0 18px 38px -10px rgba(79, 209, 197, 0.42),
+          0 0 0 1px rgba(79, 209, 197, 0.22);
+        transform: translateY(-4px);
+        z-index: 2;
       }
       .project-top {
         display: flex;
@@ -879,6 +1100,11 @@
         font-size: 34px;
         font-weight: 700;
         line-height: 1;
+        transition: color 0.2s ease, text-shadow 0.2s ease;
+      }
+      .card:hover .project-num {
+        color: #f7ba55;
+        text-shadow: 0 0 12px rgba(232, 163, 61, 0.4);
       }
       .card-route {
         font-family: var(--mono);
@@ -1083,6 +1309,8 @@
       /* ---------- Contact / footer ---------- */
       .contact-status {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         width: fit-content;
         margin-bottom: 16px;
         border: 1px solid rgba(79, 209, 197, 0.35);
@@ -1091,8 +1319,28 @@
         color: var(--teal);
         font-family: var(--mono);
         font-size: 11.5px;
-        padding: 6px 10px;
+        padding: 6px 12px;
         font-weight: 600;
+      }
+      .contact-status::before {
+        content: "";
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 8px var(--teal);
+        animation: statusDotPulse 2s ease-in-out infinite;
+      }
+      @keyframes statusDotPulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.35);
+          opacity: 0.55;
+        }
       }
       .contact-grid {
         display: grid;
@@ -1238,6 +1486,25 @@
           background 0.15s ease,
           transform 0.15s ease;
       }
+      .contact-menu:not([hidden]) .contact-option {
+        animation: menuOptionSlide 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .contact-menu:not([hidden]) .contact-option:nth-child(2) { animation-delay: 0.04s; }
+      .contact-menu:not([hidden]) .contact-option:nth-child(3) { animation-delay: 0.08s; }
+      .contact-menu:not([hidden]) .contact-option:nth-child(4) { animation-delay: 0.12s; }
+      .contact-menu:not([hidden]) .contact-option:nth-child(5) { animation-delay: 0.16s; }
+      .contact-menu:not([hidden]) .contact-option:nth-child(6) { animation-delay: 0.20s; }
+
+      @keyframes menuOptionSlide {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       .contact-option:hover {
         border-color: rgba(79, 209, 197, 0.36);
         background: var(--teal-soft);
@@ -1301,17 +1568,32 @@
           0 20px 42px -28px var(--teal),
           0 0 0 5px rgba(79, 209, 197, 0.08);
         cursor: pointer;
+        animation: fabIdlePulse 3.5s ease-in-out infinite;
         transition:
           border-color 0.15s ease,
           color 0.15s ease,
           transform 0.15s ease,
           box-shadow 0.15s ease;
       }
+      @keyframes fabIdlePulse {
+        0%, 100% {
+          box-shadow:
+            0 20px 42px -28px var(--teal),
+            0 0 0 4px rgba(79, 209, 197, 0.08);
+        }
+        50% {
+          box-shadow:
+            0 20px 42px -24px var(--teal),
+            0 0 0 8px rgba(79, 209, 197, 0.2),
+            0 0 16px rgba(79, 209, 197, 0.25);
+        }
+      }
       .contact-fab:hover,
       .contact-fab[aria-expanded="true"] {
         border-color: var(--teal);
         color: var(--paper);
         transform: translateY(-2px);
+        animation: none;
         box-shadow:
           0 24px 48px -30px var(--teal),
           0 0 0 6px rgba(79, 209, 197, 0.1);
@@ -1586,6 +1868,7 @@
     </style>
   </head>
   <body class="no-js intro-mode">
+    <div class="scroll-progress-bar" id="scrollProgress" aria-hidden="true"></div>
     <div class="shell">
       <nav class="rail" id="rail" aria-label="Portfolio sections">
         <div class="rail-brand">ayyaj@dev:~$</div>
@@ -2798,6 +3081,49 @@
       }
 
       /* ============================================================
+         SCROLL PROGRESS BAR & INTERACTIVE LIGHTING
+         ============================================================ */
+
+      function initScrollProgressBar() {
+        const bar = document.getElementById("scrollProgress");
+        if (!bar) return;
+
+        const onScroll = () => {
+          const scrollTop = window.scrollY || (document.documentElement && document.documentElement.scrollTop) || 0;
+          const docHeight = document.documentElement ? document.documentElement.scrollHeight : (document.body ? document.body.scrollHeight : 0);
+          const scrollHeight = docHeight - window.innerHeight;
+          const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+          bar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      }
+
+      function initInteractiveLighting() {
+        let ticking = false;
+        window.addEventListener(
+          "mousemove",
+          (e) => {
+            if (!ticking) {
+              const runUpdate = window.requestAnimationFrame || ((cb) => setTimeout(cb, 16));
+              runUpdate(() => {
+                if (window.innerWidth > 0 && window.innerHeight > 0 && document.documentElement && document.documentElement.style) {
+                  const x = ((e.clientX / window.innerWidth) * 100).toFixed(2);
+                  const y = ((e.clientY / window.innerHeight) * 100).toFixed(2);
+                  document.documentElement.style.setProperty("--mouse-x", `${x}%`);
+                  document.documentElement.style.setProperty("--mouse-y", `${y}%`);
+                }
+                ticking = false;
+              });
+              ticking = true;
+            }
+          },
+          { passive: true }
+        );
+      }
+
+      /* ============================================================
          INITIALIZATION
          ============================================================ */
 
@@ -2814,6 +3140,8 @@
       initCarouselEvents();
       initNavigation();
       initScrollReveal();
+      initScrollProgressBar();
+      initInteractiveLighting();
       initFloatingContact();
       initHeroEntranceAnimation();
     </script>
